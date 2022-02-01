@@ -114,61 +114,58 @@ def main(event, context):
 			for k,v in result.items():
 				if k == 'eventJson':			
 					event = v
-				if k == 'requestId':
-					requestid = v
 
+				# Normally this check helps avoid overly complex functions that are doing too many things,
+				# but in this case we explicitly want to handle 10 different cases in 10 different ways.
+				# Any solution that avoids too many return statements only increases the complexity of this rule.
+				# pylint: disable=too-many-return-statements
+					if not helper.aws_cloudtrail_success(event):
+						return False
 
-			# Normally this check helps avoid overly complex functions that are doing too many things,
-			# but in this case we explicitly want to handle 10 different cases in 10 different ways.
-			# Any solution that avoids too many return statements only increases the complexity of this rule.
-			# pylint: disable=too-many-return-statements
-				if not helper.aws_cloudtrail_success(event):
-					return False
+					parameters = event.get("requestParameters", {})
+					# Ignore events that are missing request params
+					if not parameters:
+						return False
 
-				parameters = event.get("requestParameters", {})
-				# Ignore events that are missing request params
-				if not parameters:
-					return False
+					policy = ""
 
-				policy = ""
+					# S3
+					if event["eventName"] == "PutBucketPolicy":
+						return policy_is_internet_accessible(parameters.get("bucketPolicy"))
 
-				# S3
-				if event["eventName"] == "PutBucketPolicy":
-					return policy_is_internet_accessible(parameters.get("bucketPolicy"))
+					# ECR
+					if event["eventName"] == "SetRepositoryPolicy":
+						policy = parameters.get("policyText", {})
 
-				# ECR
-				if event["eventName"] == "SetRepositoryPolicy":
-					policy = parameters.get("policyText", {})
+					# Elasticsearch
+					if event["eventName"] in ["CreateElasticsearchDomain", "UpdateElasticsearchDomainConfig"]:
+						policy = parameters.get("accessPolicies", {})
 
-				# Elasticsearch
-				if event["eventName"] in ["CreateElasticsearchDomain", "UpdateElasticsearchDomainConfig"]:
-					policy = parameters.get("accessPolicies", {})
+					# KMS
+					if event["eventName"] in ["CreateKey", "PutKeyPolicy"]:
+						policy = parameters.get("policy", {})
 
-				# KMS
-				if event["eventName"] in ["CreateKey", "PutKeyPolicy"]:
-					policy = parameters.get("policy", {})
+					# S3 Glacier
+					if event["eventName"] == "SetVaultAccessPolicy":
+						policy = helper.deep_get(parameters, "policy", "policy", default={})
 
-				# S3 Glacier
-				if event["eventName"] == "SetVaultAccessPolicy":
-					policy = helper.deep_get(parameters, "policy", "policy", default={})
+					# SNS & SQS
+					if event["eventName"] in ["SetQueueAttributes", "CreateTopic"]:
+						policy = helper.deep_get(parameters, "attributes", "Policy", default={})
 
-				# SNS & SQS
-				if event["eventName"] in ["SetQueueAttributes", "CreateTopic"]:
-					policy = helper.deep_get(parameters, "attributes", "Policy", default={})
+					# SNS
+					if (
+						event["eventName"] == "SetTopicAttributes"
+						and parameters.get("attributeName", "") == "Policy"
+					):
+						policy = parameters.get("attributeValue", {})
 
-				# SNS
-				if (
-					event["eventName"] == "SetTopicAttributes"
-					and parameters.get("attributeName", "") == "Policy"
-				):
-					policy = parameters.get("attributeValue", {})
+					# SecretsManager
+					if event["eventName"] == "PutResourcePolicy":
+						policy = parameters.get("resourcePolicy", {})
 
-				# SecretsManager
-				if event["eventName"] == "PutResourcePolicy":
-					policy = parameters.get("resourcePolicy", {})
+					if not policy:
+						return False
 
-				if not policy:
-					return False
-
-				if policy_is_internet_accessible(json.loads(policy)):
-					send_slack_message(event)
+					if policy_is_internet_accessible(json.loads(policy)):
+						send_slack_message(event)

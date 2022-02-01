@@ -102,31 +102,28 @@ def main(event, context):
 			for k,v in result.items():
 				if k == 'eventJson':			
 					event = v
-				if k == 'requestId':
-					requestid = v
 
+					if not helper.aws_cloudtrail_success(event):
+						return False
 
-	if not helper.aws_cloudtrail_success(event):
-		return False
+					# EC2 Volume snapshot made public
+					if event.get("eventName") == "ModifySnapshotAttribute":
+						parameters = event.get("requestParameters", {})
+						if parameters.get("attributeType") != "CREATE_VOLUME_PERMISSION":
+							return False
 
-	# EC2 Volume snapshot made public
-	if event.get("eventName") == "ModifySnapshotAttribute":
-		parameters = event.get("requestParameters", {})
-		if parameters.get("attributeType") != "CREATE_VOLUME_PERMISSION":
-			return False
+						items = helper.deep_get(parameters, "createVolumePermission", "add", "items", default=[])
+						for item in items:
+							if not isinstance(item, (Mapping, dict)):
+								continue
+							if item.get("group") == "all":
+								send_slack_message(event)
+								return True
 
-		items = helper.deep_get(parameters, "createVolumePermission", "add", "items", default=[])
-		for item in items:
-			if not isinstance(item, (Mapping, dict)):
-				continue
-			if item.get("group") == "all":
-				send_slack_message(event)
-				return True
+						return False
 
-		return False
+					# RDS snapshot made public
+					if event.get("eventName") == "ModifyDBClusterSnapshotAttribute":
+						return "all" in helper.deep_get(event, "requestParameters", "valuesToAdd", default=[])
 
-	# RDS snapshot made public
-	if event.get("eventName") == "ModifyDBClusterSnapshotAttribute":
-		return "all" in helper.deep_get(event, "requestParameters", "valuesToAdd", default=[])
-
-	return False
+					return False

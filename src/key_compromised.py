@@ -1,3 +1,4 @@
+from asyncio import events
 import boto3
 from botocore.exceptions import ClientError
 from datetime import datetime, timezone, timedelta
@@ -43,12 +44,11 @@ def send_slack_message(event):
 	else: # This means its an IAM User
 		userName = event['userIdentity']['userName']
 
-	imageId = event["requestParameters"]["imageId"]
+	keyId = helper.deep_get(event, 'userIdentity', 'accessKeyId')
 	account = event['userIdentity']["accountId"]
-	region = event["awsRegion"]
 
 	slack_message = {
-		'text': 'Request ID: ' + str(event["requestID"]) + '\n*' + str(userName) + '* made the image *' + str(imageId) + '* public, in account *' + str(account) + '*' + ' in region *' + region + '*'
+		'text': str(userName) + "'s access key ID *" + str(keyId) + '* in account *' + str(account) + '* was uploaded to a public github repo.'
 	}		
 
 	try:
@@ -71,9 +71,7 @@ def send_slack_message(event):
 def main(event, context):
 
 	session = assume_role(boto3.Session(), ORG_ACCOUNT, CLOUDTRAIL_LAKE_READ_ROLE)
-
 	client = session.client('cloudtrail', region_name = 'us-east-1')
-
 	event_data_stores = client.list_event_data_stores()['EventDataStores']
 	
 	for data_store in event_data_stores:
@@ -103,14 +101,9 @@ def main(event, context):
 				if k == 'eventJson':			
 					event = v
 
-					added_perms = helper.deep_get(
-						event, "requestParameters", "launchPermission", "add", "items", default=[]
-					)
-
-					if helper.aws_cloudtrail_success(event):
-						for item in added_perms:
-							if item.get('group') == 'all':
-								send_slack_message(event)
-								return f"Image is public."
-						else:
-							return f"Image is not public."
+					request_params = event.get("requestParameters", {})
+					if request_params:
+						if event.get("eventName") == "PutUserPolicy" and request_params.get("policyName") == "AWSExposedCredentialPolicy_DO_NOT_REMOVE":
+							send_slack_message(event)
+							return True
+					return False
