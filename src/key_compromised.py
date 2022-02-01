@@ -78,7 +78,7 @@ def main(event, context):
 		Name = data_store['Name']
 		database = data_store['EventDataStoreArn'].split('/')[1]
 	
-	event_name = 'ModifyImageAttribute'
+	event_name = 'PutUserPolicy'
 
 	query = "SELECT requestId, eventTime, recipientAccountId, awsRegion, eventJson, eventName FROM {} WHERE eventName = '{}' AND eventTime > '{}' AND eventTime < '{}'".format(database, event_name, delta, time)
 
