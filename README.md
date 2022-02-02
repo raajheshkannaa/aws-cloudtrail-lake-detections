@@ -8,9 +8,10 @@ Previously to do this at scale meant, enabling CloudTrail in all accounts and re
 *Note*: Detections forked from Panther Labs CloudTrail Rules - https://github.com/panther-labs/panther-analysis/tree/master/aws_cloudtrail_rules
 ## Detections
 ```
-* ami_modified_for_public_image
-* resource_made_public
-* snapshot_made_public
-* key_compromised
-
+- ami_modified_for_public_image
+- resource_made_public
+- snapshot_made_public
+- key_compromised
+- security_configuration_change
+- codebuild_made_public
 ```
