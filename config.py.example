@@ -1,0 +1,16 @@
+# Copy this file to config.py and fill in your values
+# NEVER commit config.py to source control
+
+# AWS Account IDs
+AUTOMATION_ACCOUNT = '<SECURITY_OR_AUTOMATION_ACCOUNT_ID>'
+ORG_ACCOUNT = '<ORGANIZATION_ACCOUNT_ID>'
+
+# IAM role name in the Org account that has CloudTrail Lake read permissions
+# Required permissions: cloudtrail:StartQuery, cloudtrail:GetQueryResults, cloudtrail:ListEventDataStores
+CLOUDTRAIL_LAKE_READ_ROLE = 'cloudtrail-lake-read-role'
+
+# Slack incoming webhook URL for alerts
+HOOK_URL = '<SLACK_WEBHOOK_URL>'
+
+# CloudTrail Lake Event Data Store ID (optional - auto-discovered if not set)
+# EVENT_DATA_STORE_ID = '<EVENT_DATA_STORE_ID>'

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+cdk.out/
+cdk.context.json
+.venv/
+*.egg-info/
+node_modules/
+.pytest_cache/
+.DS_Store
+src/config.py
+stacks/config.py
+config.py

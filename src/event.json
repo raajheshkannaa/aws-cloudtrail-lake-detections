@@ -1,0 +1,46 @@
+{
+	"eventVersion": "1.08",
+	"userIdentity": {
+		"type": "IAMUser",
+		"principalId": "AIDAEXAMPLEEXAMPLE",
+		"arn": "arn:aws:iam::111111111111:user/example-user",
+		"accountId": "111111111111",
+		"accessKeyId": "AKIAEXAMPLEEXAMPLE",
+		"userName": "example-user",
+		"sessionContext": {
+			"sessionIssuer": {},
+			"webIdFederationData": {},
+			"attributes": {
+				"creationDate": "2022-03-16T06:23:05Z",
+				"mfaAuthenticated": "true"
+			}
+		}
+	},
+	"eventTime": "2022-03-16T06:28:28Z",
+	"eventSource": "rds.amazonaws.com",
+	"eventName": "CreateDBInstance",
+	"awsRegion": "us-east-1",
+	"sourceIPAddress": "AWS Internal",
+	"userAgent": "AWS Internal",
+	"requestParameters": {
+		"dBInstanceIdentifier": "database-1-instance-1",
+		"dBInstanceClass": "db.r5.large",
+		"engine": "aurora-mysql",
+		"publiclyAccessible": false
+	},
+	"responseElements": {
+		"dBInstanceIdentifier": "database-1-instance-1",
+		"dBInstanceClass": "db.r5.large",
+		"engine": "aurora-mysql",
+		"dBInstanceStatus": "creating",
+		"publiclyAccessible": false,
+		"storageEncrypted": true
+	},
+	"requestID": "ce0bbb11-7212-4f19-a797-923e0c85f466",
+	"eventID": "cccf5543-3d08-4ccb-ae86-b04afdc8553f",
+	"readOnly": false,
+	"eventType": "AwsApiCall",
+	"managementEvent": true,
+	"recipientAccountId": "111111111111",
+	"eventCategory": "Management"
+}

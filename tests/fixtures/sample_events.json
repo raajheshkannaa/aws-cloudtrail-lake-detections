@@ -1,0 +1,156 @@
+{
+    "resource_made_public_s3": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "s3.amazonaws.com",
+        "eventName": "PutBucketPolicy",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "arn": "arn:aws:iam::111111111111:user/test-user"
+        },
+        "requestParameters": {
+            "bucketName": "sensitive-data-bucket",
+            "bucketPolicy": {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::sensitive-data-bucket/*"
+                }]
+            }
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "key_compromised": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "iam.amazonaws.com",
+        "eventName": "PutUserPolicy",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "AWSService",
+            "arn": "arn:aws:iam::111111111111:root"
+        },
+        "requestParameters": {
+            "userName": "compromised-user",
+            "policyName": "AWSExposedCredentialPolicy_DO_NOT_REMOVE",
+            "policyDocument": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Deny\",\"Action\":\"*\",\"Resource\":\"*\"}]}"
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "ami_made_public": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "ec2.amazonaws.com",
+        "eventName": "ModifyImageAttribute",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "arn": "arn:aws:iam::111111111111:user/test-user"
+        },
+        "requestParameters": {
+            "imageId": "ami-0123456789abcdef0",
+            "launchPermission": {
+                "add": {
+                    "items": [{"group": "all"}]
+                }
+            }
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "snapshot_made_public": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "ec2.amazonaws.com",
+        "eventName": "ModifySnapshotAttribute",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "arn": "arn:aws:iam::111111111111:user/test-user"
+        },
+        "requestParameters": {
+            "snapshotId": "snap-0123456789abcdef0",
+            "attributeType": "CREATE_VOLUME_PERMISSION",
+            "createVolumePermission": {
+                "add": {
+                    "items": [{"group": "all"}]
+                }
+            }
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "security_config_tampering": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "StopLogging",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "userName": "suspicious-user",
+            "arn": "arn:aws:iam::111111111111:user/suspicious-user"
+        },
+        "requestParameters": {
+            "name": "arn:aws:cloudtrail:us-east-1:111111111111:trail/management-trail"
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "codebuild_made_public": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "codebuild.amazonaws.com",
+        "eventName": "UpdateProjectVisibility",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "arn": "arn:aws:iam::111111111111:user/test-user"
+        },
+        "requestParameters": {
+            "projectArn": "arn:aws:codebuild:us-east-1:111111111111:project/my-build",
+            "projectVisibility": "PUBLIC_READ"
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "cloudtrail_stopped": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "cloudtrail.amazonaws.com",
+        "eventName": "DeleteTrail",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "userName": "attacker-user",
+            "arn": "arn:aws:iam::111111111111:user/attacker-user"
+        },
+        "requestParameters": {
+            "name": "arn:aws:cloudtrail:us-east-1:111111111111:trail/org-trail"
+        },
+        "recipientAccountId": "111111111111"
+    },
+    "benign_put_bucket_policy": {
+        "eventVersion": "1.08",
+        "eventTime": "2026-03-01T12:00:00Z",
+        "eventSource": "s3.amazonaws.com",
+        "eventName": "PutBucketPolicy",
+        "awsRegion": "us-east-1",
+        "userIdentity": {
+            "type": "IAMUser",
+            "arn": "arn:aws:iam::111111111111:user/test-user"
+        },
+        "requestParameters": {
+            "bucketName": "private-bucket",
+            "bucketPolicy": {
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "arn:aws:iam::222222222222:root"},
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::private-bucket/*"
+                }]
+            }
+        },
+        "recipientAccountId": "111111111111"
+    }
+}
