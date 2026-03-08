@@ -136,16 +136,19 @@ Values can also be set via environment variables: `AUTOMATION_ACCOUNT`, `ORG_ACC
 
 ## Cost Estimate
 
-CloudTrail Lake pricing is per-GB ingested and per-GB scanned.
+CloudTrail Lake pricing is per-GB ingested (one-year retention: $0.75/GB) and per-GB scanned ($0.005/GB).
 
 | Component | Estimate (100 accounts) | Estimate (300+ accounts) |
 |---|---|---|
-| CloudTrail Lake ingestion | ~$50-150/month | ~$150-500/month |
-| CloudTrail Lake queries (7 detections x 6/hour x 730 hours) | ~$10-30/month | ~$30-100/month |
-| Lambda + NAT Gateway | ~$35/month | ~$35/month |
-| **Total** | **~$95-215/month** | **~$215-635/month** |
+| CloudTrail Lake ingestion (one-year retention) | ~$38-150/month | ~$150-450/month |
+| CloudTrail Lake queries (7 detections x 6/hour x 730 hours) | ~$1-4/month | ~$3-10/month |
+| NAT Gateway (24/7) | ~$33/month | ~$33/month |
+| Lambda + EventBridge + CloudWatch | ~$1/month | ~$1/month |
+| **Total** | **~$75-185/month** | **~$185-495/month** |
 
-Costs vary significantly based on event volume. Monitor your CloudTrail Lake usage in AWS Cost Explorer.
+The NAT Gateway is the largest incremental cost (~$33/month). Lambdas run in a VPC for flow log visibility on the detection infrastructure itself — if you don't need that, run them outside a VPC and the incremental cost drops to ~$2-4/month on top of your existing CloudTrail Lake spend.
+
+Costs vary significantly based on event volume. Use one-year extendable retention ($0.75/GB) unless you have compliance requirements for longer retention ($2.50/GB for seven-year). Monitor usage in AWS Cost Explorer.
 
 ## How It Works
 
